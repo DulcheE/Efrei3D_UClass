@@ -4,18 +4,40 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Generation_procedural_Chunk.generated.h"
+#include "CubeSpawner.generated.h"
 
 UCLASS()
-class EFREI3D_UCLASS_API AGeneration_procedural_Chunk : public AActor
+class EFREI3D_UCLASS_API ACubeSpawner : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AGeneration_procedural_Chunk();
+	ACubeSpawner();
 
 protected:
+
+	UPROPERTY(EditAnywhere)
+		float Acceleration;
+
+	UPROPERTY(EditAnywhere)
+		float Vitesse;
+
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* Cube;
+
+	UPROPERTY(EditAnywhere)
+		int32 NbSpawn = 5;
+
+	UPROPERTY(EditAnywhere)
+		int32 HeightSpawn = 1000;
+
+	UPROPERTY(EditAnywhere)
+		float Gravity = 500;
+
+
+	float ChuteT = 0;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
