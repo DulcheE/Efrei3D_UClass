@@ -4,23 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CubeEntity.h"
-#include "CubeSpawner.generated.h"
+#include "CubeEntity.generated.h"
 
 UCLASS()
-class EFREI3D_UCLASS_API ACubeSpawner : public AActor
+class EFREI3D_UCLASS_API ACubeEntity : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
-	ACubeSpawner();
+	ACubeEntity();
+
+	void Init(float Acceleration, float Vitesse, UStaticMeshComponent* Cube, int32 HeightSpawn, float Gravity);
 
 protected:
-
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<ACubeEntity> CubeClass;
 
 	UPROPERTY(EditAnywhere)
 		float Acceleration;
@@ -38,19 +35,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 		float Gravity = 500;
 
-	UPROPERTY(EditAnywhere)
-		int32 NbSpawn = 5;
 
-	UPROPERTY(EditAnywhere)
-		int32 Range = 500;
-
+	float ChuteT = 0;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void Create_Cube();
 
 };

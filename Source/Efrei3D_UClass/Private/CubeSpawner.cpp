@@ -2,18 +2,19 @@
 
 
 #include "CubeSpawner.h"
+#include <time.h>
 
 // Sets default values
 ACubeSpawner::ACubeSpawner()
 {
+	srand(time(NULL));
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
 
 	this->Cube = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeMesh"));
 
-	this->Cube->SetupAttachment(RootComponent);
-	this->Cube->SetMobility(EComponentMobility::Movable);
-	//this->Cube->SetStaticMesh(TEXT("StaticMesh'/Game/Shapes/Shape_Cube.Shape_Cube'"));
 }
 
 // Called when the game starts or when spawned
@@ -21,10 +22,7 @@ void ACubeSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	FVector PreviousPos = this->GetActorLocation();
-
-	this->SetActorLocation(FVector(PreviousPos.X, PreviousPos.Y, this->HeightSpawn));
+	this->Create_Cube();
 }
 
 
@@ -32,20 +30,36 @@ void ACubeSpawner::BeginPlay()
 void ACubeSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
-	this->ChuteT += DeltaTime;
 
-	FVector PreviousPos = this->GetActorLocation();
+void ACubeSpawner::Create_Cube() {
+	if (this->NbSpawn < 0)
+		return;
 
-	float newZ;
-	if (PreviousPos.Z < 0) {
-		newZ = this->HeightSpawn;
-		this->ChuteT = 0;
+	//Spawn chunk
+	FVector Loc = FVector(rand()%this->Range, rand()%this->Range, 0.f);
+	FRotator Rot = FRotator(0.0f, 0.0f, 0.0f);
+	FTransform Tran = FTransform(Rot, Loc);
+
+	UWorld* const World = GetWorld();
+
+	if (World) {
+
+		ACubeEntity* spawn = World->SpawnActorDeferred<ACubeEntity>(this->CubeClass, FTransform::Identity, this, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		if (spawn) {
+			spawn->Init(this->Acceleration, this->Vitesse, this->Cube, this->HeightSpawn,this->Gravity);
+
+
+			spawn->FinishSpawning(Tran);
+		}
+
 	}
-	else {
-		newZ = this->HeightSpawn - (this->Vitesse * this->ChuteT + this->Acceleration * pow(this->ChuteT, 2) / 2);
-	}
 
-	this->SetActorLocation(FVector(PreviousPos.X, PreviousPos.Y, newZ));
+	NbSpawn--;
+
+	FTimerHandle TimerInfo;
+	GetWorldTimerManager().SetTimer(TimerInfo, this, &ACubeSpawner::Create_Cube, 0.0002f);
 }
 
