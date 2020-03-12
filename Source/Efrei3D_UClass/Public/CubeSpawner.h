@@ -20,7 +20,10 @@ protected:
 
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<ACubeEntity> CubeClass;
+		TSubclassOf<ACubeEntity> CubeClass; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = BPClasses)
+		UClass* ThirdPersonCharacterBlueprint;
 
 	UPROPERTY(EditAnywhere)
 		float Acceleration;

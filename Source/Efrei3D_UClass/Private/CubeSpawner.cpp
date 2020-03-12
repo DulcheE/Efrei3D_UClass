@@ -14,6 +14,7 @@ ACubeSpawner::ACubeSpawner()
 
 
 	this->Cube = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeMesh"));
+	this->Cube->SetupAttachment(RootComponent);
 
 }
 
@@ -21,6 +22,7 @@ ACubeSpawner::ACubeSpawner()
 void ACubeSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+
 
 	this->Create_Cube();
 }
@@ -34,11 +36,11 @@ void ACubeSpawner::Tick(float DeltaTime)
 
 
 void ACubeSpawner::Create_Cube() {
-	if (this->NbSpawn < 0)
+	if (this->NbSpawn <= 0)
 		return;
 
 	//Spawn chunk
-	FVector Loc = FVector(rand()%this->Range, rand()%this->Range, 0.f);
+	FVector Loc = FVector(this->Cube->GetComponentLocation().X + (rand()%this->Range), this->Cube->GetComponentLocation().Y + (rand()%this->Range), 0.f);
 	FRotator Rot = FRotator(0.0f, 0.0f, 0.0f);
 	FTransform Tran = FTransform(Rot, Loc);
 
@@ -49,7 +51,7 @@ void ACubeSpawner::Create_Cube() {
 		ACubeEntity* spawn = World->SpawnActorDeferred<ACubeEntity>(this->CubeClass, FTransform::Identity, this, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 		if (spawn) {
-			spawn->Init(this->Acceleration, this->Vitesse, this->Cube, this->HeightSpawn,this->Gravity);
+			spawn->Init(this->ThirdPersonCharacterBlueprint, this->Acceleration, this->Vitesse, this->Cube, this->HeightSpawn,this->Gravity);
 
 
 			spawn->FinishSpawning(Tran);
@@ -60,6 +62,6 @@ void ACubeSpawner::Create_Cube() {
 	NbSpawn--;
 
 	FTimerHandle TimerInfo;
-	GetWorldTimerManager().SetTimer(TimerInfo, this, &ACubeSpawner::Create_Cube, 0.0002f);
+	GetWorldTimerManager().SetTimer(TimerInfo, this, &ACubeSpawner::Create_Cube, 2.f);
 }
 

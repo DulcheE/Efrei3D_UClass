@@ -2,6 +2,7 @@
 
 
 #include "CubeEntity.h"
+#include <Runtime\Engine\Classes\Kismet\GameplayStatics.h>
 
 // Sets default values
 ACubeEntity::ACubeEntity()
@@ -16,7 +17,8 @@ ACubeEntity::ACubeEntity()
 	//this->Cube->SetStaticMesh(TEXT("StaticMesh'/Game/Shapes/Shape_Cube.Shape_Cube'"));
 }
 
-void ACubeEntity::Init(float Acceleration, float Vitesse, UStaticMeshComponent* Cube, int32 HeightSpawn, float Gravity) {
+void ACubeEntity::Init(UClass* ThirdPersonCharacterBlueprint, float Acceleration, float Vitesse, UStaticMeshComponent* Cube, int32 HeightSpawn, float Gravity) {
+	this->ThirdPersonCharacterBlueprint = ThirdPersonCharacterBlueprint;
 	this->Acceleration = Acceleration;
 	this->Vitesse = Vitesse;
 	this->HeightSpawn = HeightSpawn;
@@ -35,6 +37,17 @@ void ACubeEntity::BeginPlay()
 	FVector PreviousPos = this->GetActorLocation();
 
 	this->SetActorLocation(FVector(PreviousPos.X, PreviousPos.Y, this->HeightSpawn));
+	this->Cube->OnComponentBeginOverlap.AddDynamic(this, &ACubeEntity::OnOverlapBegin);
+}
+
+void ACubeEntity::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+	UE_LOG(LogTemp, Display, TEXT("Touchy"));
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		// Turn off the light  
+		this->Cube->SetVisibility(false);
+	}
 }
 
 
@@ -47,10 +60,12 @@ void ACubeEntity::Tick(float DeltaTime)
 
 	FVector PreviousPos = this->GetActorLocation();
 
+	float ground = 0;
+
 	float newZ;
-	if (PreviousPos.Z < 0) {
+	if (PreviousPos.Z < ground) {
 		this->ChuteT = 0;
-		this->HeightSpawn = 0;
+		this->HeightSpawn = ground;
 	}
 
 	newZ = this->HeightSpawn - (this->Vitesse * this->ChuteT + this->Acceleration * pow(this->ChuteT, 2) / 2);
